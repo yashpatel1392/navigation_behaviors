@@ -4,46 +4,45 @@ from flexbe_core import EventState, Logger
 from flexbe_core.proxy import ProxyActionClient, ProxySubscriberCached
 
 from actionlib_msgs.msg import GoalStatus
-from move_base_msgs.msg import *
 from geometry_msgs.msg import *
-from nav_msgs.msg import Odometry
+from nav_msgs.msg import Path, Odometry
+from mbf_msgs.msg import ExePathAction
+from mbf_msgs.msg import ExePathGoal
+from mbf_msgs.msg import MoveBaseAction
 
 import rospy
 
 # ># waypoint     Pose2D      goal coordinates for the robot.
 
-class MoveBaseActionState(EventState):
+class MoveBaseFlexActionState(EventState):
     """
     -- robot_name   string      robot namespace.
-    -- x            int         x coordinate of the goal position
-    -- y            int         y coordinate of the goal position
-    -- theta        int         orientation of the goal position
-
+    
     <= success                  indicates successful completion of navigation.
     <= failed                   indicates unsuccessful completion of navigation.
 
     """
 
-    def __init__(self, robot_name, x, y, theta):
-        super(MoveBaseActionState, self).__init__(outcomes=['success', 'failed'])
+    def __init__(self, robot_name):
+        super(MoveBaseFlexActionState, self).__init__(outcomes=['success', 'failed'])
         
         self._robot_name = robot_name
-        self._x = x
-        self._y = y
-        self._theta = theta
         
         Logger.loginfo("%s" % str(self._robot_name))
 
+        self._path_topic = self._robot_name + "/path"
         self._odom_topic = self._robot_name + "/odom"
         self._goal_pose_topic = self._robot_name + "/goal_pose"
         
-        self._sub = ProxySubscriberCached({self._odom_topic: Odometry, self._goal_pose_topic: PoseStamped})
+        self._sub = ProxySubscriberCached({self._path_topic: Path, self._odom_topic: Odometry, self._goal_pose_topic: PoseStamped})
         
-        self._action_topic = self._robot_name + "_move_base"
+        self._action_topic = self._robot_name + "_move_base_flex/exe_path"
         Logger.loginfo("\n%s" % str(self._action_topic))
-        self._client = ProxyActionClient({self._action_topic: MoveBaseAction})
+        self._client = ProxyActionClient({self._action_topic: ExePathAction})
 
     def execute(self, userdata):
+        Logger.loginfo("Execute Begins")
+        # checker 
         if self._sub.has_msg(self._odom_topic):
             self._odom_data = self._sub.get_last_msg(self._odom_topic)
             self._sub.remove_last_msg(self._odom_topic)
@@ -67,16 +66,23 @@ class MoveBaseActionState(EventState):
         
             elif status in [GoalStatus.PREEMPTED, GoalStatus.REJECTED, GoalStatus.ABORTED]:
                 return 'failed'
+        
+        Logger.loginfo("Execute Ends")
 
-    def on_enter(self, userdata):            
-        goal = MoveBaseGoal()
-        goal.target_pose.header.frame_id = "map"
-        goal.target_pose.header.stamp = rospy.Time.now()
-        goal.target_pose.pose.position.x = self._x
-        goal.target_pose.pose.position.y = self._y
-        goal.target_pose.pose.orientation.w = self._theta
 
-        self._client.send_goal(self._action_topic, goal)
+    def on_enter(self, userdata):      
+        Logger.loginfo("OnEnter Begins")
+            
+        while True:
+            if self._sub.has_msg(self._path_topic):
+                goal = ExePathGoal()
+                goal.controller = "TrajectoryPlannerROS"
+                goal.path = self._sub.get_last_msg(self._path_topic)
+                self._client.send_goal(self._action_topic, goal)
+                break
+        
+        Logger.loginfo("OnEnter Ends")
+
 
     # copied from armada_behaviors
     def cancel_active_goals(self):

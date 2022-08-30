@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<behavior name="nav">
+
+	<executable package_path="navigation_flexbe_behaviors.nav_sm" class="navSM" />
+	<tagstring>nav</tagstring>
+	<author>yashp</author>
+	<date>Wed Aug 17 2022</date>
+	<description>
+		nav
+	</description>
+
+
+	<!-- Contained Behaviors -->
+
+	<!-- Available Parameters -->
+	<params>
+
+		<param type="numeric" name="xpos" default="0" label="xpos" hint="Sets the xpos">
+			<min value="0" />
+			<max value="1" />
+		</param>
+
+		<param type="numeric" name="ypos" default="8" label="ypos" hint="Sets the ypos">
+			<min value="0" />
+			<max value="21" />
+		</param>
+
+		<param type="numeric" name="wpos" default="0" label="wpos" hint="Sets the wpos">
+			<min value="0" />
+			<max value="1" />
+		</param>
+
+		<param type="text" name="robot" default="" label="robot" hint="Sets the robot" />
+
+	</params>
+
+
+</behavior>

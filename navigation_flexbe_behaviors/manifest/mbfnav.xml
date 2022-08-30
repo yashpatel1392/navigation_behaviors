@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<behavior name="mbfnav">
+
+	<executable package_path="navigation_flexbe_behaviors.mbfnav_sm" class="mbfnavSM" />
+	<tagstring>mbfnav</tagstring>
+	<author>yashp</author>
+	<date>Thu Aug 18 2022</date>
+	<description>
+		mbfnav
+	</description>
+
+
+	<!-- Contained Behaviors -->
+
+	<!-- Available Parameters -->
+	<params>
+
+		<param type="text" name="robot" default="" label="robot" hint="Sets the robot" />
+
+		<param type="text" name="anotherobot" default="" label="anotherobot" hint="Sets the anotherobot" />
+
+	</params>
+
+
+</behavior>

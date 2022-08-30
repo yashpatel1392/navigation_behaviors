@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<behavior name="goal publisher test state">
+
+	<executable package_path="navigation_flexbe_behaviors.goal_publisher_test_state_sm" class="goalpublisherteststateSM" />
+	<tagstring>goal publisher test state</tagstring>
+	<author>yashp</author>
+	<date>Thu Aug 25 2022</date>
+	<description>
+		goal publisher test state
+	</description>
+
+
+	<!-- Contained Behaviors -->
+
+	<!-- Available Parameters -->
+	<params>
+
+		<param type="text" name="robot_names" default="" label="robot_names" hint="Sets the robot_names" />
+
+		<param type="text" name="robot_goals" default="" label="robot_goals" hint="Sets the robot_goals" />
+
+	</params>
+
+
+</behavior>
