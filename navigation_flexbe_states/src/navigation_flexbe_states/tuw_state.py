@@ -2,7 +2,8 @@
 
 from flexbe_core import EventState, Logger
 from flexbe_core.proxy import ProxyActionClient, ProxySubscriberCached, ProxyPublisher
-from tuw_multi_robot_msgs import *
+from tuw_multi_robot_msgs.msg import RobotGoalsArray, RobotGoals
+from geometry_msgs.msg import Pose
 
 import rospy
 
@@ -30,21 +31,30 @@ class TuwState(EventState):
         return 'success'
 
     def on_enter(self, userdata):
-        self._pub.createPublisher("/robot_info", RobotGoalsArray)
+        self._pub.createPublisher("goals", RobotGoalsArray)
         goal_msg = RobotGoalsArray()
         goal_msg.header.frame_id = "map"
         goal_msg.header.stamp = rospy.Time.now()
         goal_msg.header.seq = 0
+        
         for i in range(len(self._robot_names_list)):
-            goal_msg.robots[i].robot_name = self._robot_names_list[i]
-            goal_msg.robots[i].destinations[0].position.x = self._robot_goals_list[i][0]
-            goal_msg.robots[i].destinations[0].position.y = self._robot_goals_list[i][1]
-            goal_msg.robots[i].destinations[0].position.z = 0.0
-            goal_msg.robots[i].destinations[0].orientation.x = 0.0
-            goal_msg.robots[i].destinations[0].orientation.y = 0.0
-            goal_msg.robots[i].destinations[0].orientation.z = 0.0
-            goal_msg.robots[i].destinations[0].orientation.w = self._robot_goals_list[i][2]
-        self._pub.publish("/robot_info", goal_msg)
+            goal = RobotGoals()
+            goal_pose = Pose()
+                        
+            goal_pose.position.x = self._robot_goals_list[i][0]
+            goal_pose.position.y = self._robot_goals_list[i][1]
+            goal_pose.position.z = 0.0
+            goal_pose.orientation.x = 0.0
+            goal_pose.orientation.y = 0.0
+            goal_pose.orientation.z = 0.0
+            goal_pose.orientation.w = self._robot_goals_list[i][2]
+                                    
+            goal.robot_name = self._robot_names_list[i]
+            goal.destinations.append(goal_pose)          
+            goal_msg.robots.append(goal)
+            
+        print("Number of robots: %f" % (len(goal_msg.robots)))
+        self._pub.publish("goals", goal_msg)
 
     def on_exit(self, userdata):
         pass
