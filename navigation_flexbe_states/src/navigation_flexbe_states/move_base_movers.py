@@ -9,13 +9,15 @@ from nav_msgs.msg import Path, Odometry
 from mbf_msgs.msg import ExePathAction
 from mbf_msgs.msg import ExePathGoal
 from mbf_msgs.msg import MoveBaseAction
+from move_base_msgs.msg import *
+
 
 import rospy
 
 
 # ># waypoint     Pose2D      goal coordinates for the robot.
 
-class MBFMovers(EventState):
+class MoveBaseMovers(EventState):
     """
     -- robot_names  string      robot namespace.
     
@@ -25,21 +27,19 @@ class MBFMovers(EventState):
     """
 
     def __init__(self, robot_names):
-        super(MBFMovers, self).__init__(outcomes=['success', 'failed'],
-                                        input_keys=['robot_paths_IN'])
+        super(MoveBaseMovers, self).__init__(outcomes=['success', 'failed'],
+                                        input_keys=['robot_goals_IN'])
         
         self._robot_names_list = robot_names.split(", ")
         
         self._goal_pose_topics = []
         self._odom_topics = []
         self._action_topics = []
-        self._map = {}
         
         for name in self._robot_names_list:
             self._goal_pose_topics.append(name + "/goal_pose")
             self._odom_topics.append(name + "/odom")
-            self._action_topics.append(name + "_move_base_flex/exe_path")
-            self._map[name + "_move_base_flex/exe_path"] = False
+            self._action_topics.append(name + "_move_base")
         
         self._odom_dict = dict.fromkeys(self._odom_topics, Odometry)
         self._goal_pose_dict = dict.fromkeys(self._goal_pose_topics, PoseStamped)
@@ -97,13 +97,25 @@ class MBFMovers(EventState):
     def on_enter(self, userdata):      
         Logger.loginfo("OnEnter Begins")
             
-        for i in range(len(self._action_topics)):
-            goal = ExePathGoal()
-            goal.controller = "TrajectoryPlannerROS"
-            goal.path = userdata.robot_paths_IN[i]
-            self._clients.send_goal(self._action_topics[i], goal)
+        # for i in range(len(self._action_topics)):
+        #     goal = ExePathGoal()
+        #     goal.controller = "TrajectoryPlannerROS"
+        #     goal.path = userdata.robot_paths_IN[i]
+        #     self._clients.send_goal(self._action_topics[i], goal)
             
-        
+        #         self._map = {}
+
+        for i in range(len(self._action_topics)):
+            goal_pose = userdata.robot_goals_IN[i]
+            goal = MoveBaseGoal()
+            goal.target_pose.header.frame_id = "map"
+            goal.target_pose.header.stamp = rospy.Time.now()
+            goal.target_pose.pose = goal_pose.pose
+            # goal.target_pose.pose.position.x = goal_pose.pose.position.x
+            # goal.target_pose.pose.position.y = goal_pose.pose.position.y
+            # goal.target_pose.pose.orientation.w = goal_pose.pose.orientation.w
+            self._clients(self._action_topics[i], goal)
+            
         Logger.loginfo("OnEnter Ends")
 
 

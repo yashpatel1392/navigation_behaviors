@@ -5,13 +5,14 @@ from flexbe_core.proxy import ProxyActionClient, ProxySubscriberCached, ProxyPub
 from tuw_multi_robot_msgs.msg import RobotGoalsArray, RobotGoals
 from geometry_msgs.msg import Pose
 
+
 import rospy
 
 class TuwState(EventState):
 
     """
         -- robot_names   string      robot namespaces.
-        -- robot_goals   string      robot goals.
+        #> robot_goals   string      robot goals.
 
         <= success                  indicates successful completion of navigation.
         <= failed                   indicates unsuccessful completion of navigation.
