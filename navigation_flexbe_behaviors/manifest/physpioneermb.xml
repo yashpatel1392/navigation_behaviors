@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<behavior name="PhysPioneerMB">
+
+	<executable package_path="navigation_flexbe_behaviors.physpioneermb_sm" class="PhysPioneerMBSM" />
+	<tagstring>PhysPioneerMB</tagstring>
+	<author>yashp</author>
+	<date>Tue Dec 20 2022</date>
+	<description>
+		PhysPioneerMB
+	</description>
+
+
+	<!-- Contained Behaviors -->
+
+	<!-- Available Parameters -->
+	<params>
+
+		<param type="text" name="robot_name" default="pioneer_bot" label="robot_name" hint="Sets the robot_name" />
+
+		<param type="text" name="robot_start" default="0.2, -0.083, 1.0" label="robot_start" hint="Sets the robot_start" />
+
+		<param type="text" name="robot_goal" default="2.2, -0.083, 1.0" label="robot_goal" hint="Sets the robot_goal" />
+
+		<param type="text" name="pause_topic" default="continue" label="pause_topic" hint="Sets the pause_topic" />
+
+		<param type="boolean" name="true" default="True" label="true" hint="Sets the true" />
+
+		<param type="boolean" name="false" default="False" label="false" hint="Sets the false" />
+
+		<param type="numeric" name="num_reps" default="0" label="num_reps" hint="Sets the num_reps">
+			<min value="0" />
+			<max value="30" />
+		</param>
+
+	</params>
+
+
+</behavior>

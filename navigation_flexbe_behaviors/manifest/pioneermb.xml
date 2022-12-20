@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<behavior name="PioneerMB">
+
+	<executable package_path="navigation_flexbe_behaviors.pioneermb_sm" class="PioneerMBSM" />
+	<tagstring>PioneerMB</tagstring>
+	<author>yashp</author>
+	<date>Mon Dec 19 2022</date>
+	<description>
+		PioneerMB
+	</description>
+
+
+	<!-- Contained Behaviors -->
+
+	<!-- Available Parameters -->
+	<params>
+
+		<param type="text" name="name" default="pioneer" label="name" hint="Sets the name" />
+
+		<param type="text" name="goal" default="0.0, 8.0, 1.0" label="goal" hint="Sets the goal" />
+
+		<param type="text" name="topic" default="continue" label="topic" hint="Sets the topic" />
+
+		<param type="boolean" name="bool_true" default="True" label="bool_true" hint="Sets the bool_true" />
+
+		<param type="boolean" name="bool_false" default="False" label="bool_false" hint="Sets the bool_false" />
+
+		<param type="numeric" name="num_reps" default="2" label="num_reps" hint="Sets the num_reps">
+			<min value="0" />
+			<max value="30" />
+		</param>
+
+		<param type="text" name="start" default="0.0, 0.0, 1.0" label="start" hint="Sets the start" />
+
+	</params>
+
+
+</behavior>

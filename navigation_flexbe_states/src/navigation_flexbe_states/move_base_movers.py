@@ -4,12 +4,10 @@ from flexbe_core import EventState, Logger
 from flexbe_core.proxy import ProxyActionClient, ProxySubscriberCached
 
 from actionlib_msgs.msg import GoalStatus
-from geometry_msgs.msg import *
-from nav_msgs.msg import Path, Odometry
-from mbf_msgs.msg import ExePathAction
-from mbf_msgs.msg import ExePathGoal
-from mbf_msgs.msg import MoveBaseAction
 from move_base_msgs.msg import *
+from geometry_msgs.msg import *
+from nav_msgs.msg import Odometry
+from tf.transformations import euler_from_quaternion
 
 
 import rospy
@@ -31,6 +29,7 @@ class MoveBaseMovers(EventState):
                                         input_keys=['robot_goals_IN'])
         
         self._robot_names_list = robot_names.split(", ")
+        self._outcomes_list = [False] * len(self._robot_names_list)
         
         self._goal_pose_topics = []
         self._odom_topics = []
@@ -43,7 +42,7 @@ class MoveBaseMovers(EventState):
         
         self._odom_dict = dict.fromkeys(self._odom_topics, Odometry)
         self._goal_pose_dict = dict.fromkeys(self._goal_pose_topics, PoseStamped)
-        self._action_dict = dict.fromkeys(self._action_topics, ExePathAction)
+        self._action_dict = dict.fromkeys(self._action_topics, MoveBaseAction)
         
         self._odom_sub = ProxySubscriberCached(self._odom_dict)
         self._goal_pose_subs = ProxySubscriberCached(self._goal_pose_dict)
@@ -55,7 +54,7 @@ class MoveBaseMovers(EventState):
     def execute(self, userdata):
         Logger.loginfo("Execute Begins")
         
-        for odom_topic, goal_pose_topic, action_topic in self._odom_topics, self._goal_pose_topics, self._action_topics:
+        for i, odom_topic, goal_pose_topic, action_topic in range(len(self._outcomes_list)), self._odom_topics, self._goal_pose_topics, self._action_topics:
         # checker 
             if self._sub.has_msg(odom_topic):
                 self._odom_data = self._sub.get_last_msg(odom_topic)
@@ -73,37 +72,25 @@ class MoveBaseMovers(EventState):
                     Logger.loginfo("Positions matched, goal is reached!")
                     self._positions_match = True
             
-            if self._positions_match and self._clients.has_result(action_topic):
+            if self._clients.has_result(action_topic) and self._positions_match:
                 status = self._clients.get_state(action_topic)
                 if status == GoalStatus.SUCCEEDED:
-                    self._map[action_topic] = True
-            
+                    # self._map[action_topic] = True
+                    if self._outcomes_list[i] != True:
+                        self._outcomes_list[i] != True 
+                    
                 elif status in [GoalStatus.PREEMPTED, GoalStatus.REJECTED, GoalStatus.ABORTED]:
-                    self._map[action_topic] = False
+                    # self._map[action_topic] = False
+                    return 'failed'
         
-        counter = 0
-        for i in self._map:
-            if self._map[i] == True:
-                counter += 1
-        
+        if (all[self._outcomes_list]):
+            return 'success'
         Logger.loginfo("Execute Ends")
         
-        if counter == len(self._action_topics):
-            return 'success'
-        else:
-            return 'failed'
 
 
     def on_enter(self, userdata):      
         Logger.loginfo("OnEnter Begins")
-            
-        # for i in range(len(self._action_topics)):
-        #     goal = ExePathGoal()
-        #     goal.controller = "TrajectoryPlannerROS"
-        #     goal.path = userdata.robot_paths_IN[i]
-        #     self._clients.send_goal(self._action_topics[i], goal)
-            
-        #         self._map = {}
 
         for i in range(len(self._action_topics)):
             goal_pose = userdata.robot_goals_IN[i]

@@ -5,7 +5,6 @@ from flexbe_core.proxy import ProxySubscriberCached
 from nav_msgs.msg import Path
 
 import rospy
-import threading
 
 class CounterState(EventState):
     """

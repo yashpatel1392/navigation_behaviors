@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<behavior name="PauseTest">
+
+	<executable package_path="navigation_flexbe_behaviors.pausetest_sm" class="PauseTestSM" />
+	<tagstring>PauseTest</tagstring>
+	<author>yashp</author>
+	<date>Mon Dec 19 2022</date>
+	<description>
+		PauseTest
+	</description>
+
+
+	<!-- Contained Behaviors -->
+
+	<!-- Available Parameters -->
+	<params>
+
+		<param type="text" name="topic" default="" label="topic" hint="Sets the topic" />
+
+	</params>
+
+
+</behavior>
