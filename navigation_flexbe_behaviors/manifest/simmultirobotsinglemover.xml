@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<behavior name="SimMultiRobotSingleMover">
+
+	<executable package_path="navigation_flexbe_behaviors.simmultirobotsinglemover_sm" class="SimMultiRobotSingleMoverSM" />
+	<tagstring>SimMultiRobotSingleMover</tagstring>
+	<author>yashp</author>
+	<date>Wed Dec 21 2022</date>
+	<description>
+		SimMultiRobotSingleMover
+	</description>
+
+
+	<!-- Contained Behaviors -->
+
+	<!-- Available Parameters -->
+	<params>
+
+		<param type="text" name="robot_names" default="pioneer, pioneer_bot" label="robot_names" hint="Sets the robot_names" />
+
+		<param type="text" name="robot_goals" default="5.0, 0.0, 1.0, 5.0, 8.0, 1.0" label="robot_goals" hint="Sets the robot_goals" />
+
+		<param type="text" name="topic" default="continue" label="topic" hint="Sets the topic" />
+
+		<param type="boolean" name="true" default="True" label="true" hint="Sets the true" />
+
+		<param type="boolean" name="false" default="False" label="false" hint="Sets the false" />
+
+		<param type="numeric" name="num_reps" default="5" label="num_reps" hint="Sets the num_reps">
+			<min value="0" />
+			<max value="31" />
+		</param>
+
+	</params>
+
+
+</behavior>

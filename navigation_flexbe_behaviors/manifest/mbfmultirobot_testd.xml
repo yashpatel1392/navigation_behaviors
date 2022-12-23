@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<behavior name="MBFMultiRobot_TestD">
+
+	<executable package_path="navigation_flexbe_behaviors.mbfmultirobot_testd_sm" class="MBFMultiRobot_TestDSM" />
+	<tagstring>MBFMultiRobot_TestD</tagstring>
+	<author>yashp</author>
+	<date>Wed Dec 21 2022</date>
+	<description>
+		MBFMultiRobot_TestD
+	</description>
+
+
+	<!-- Contained Behaviors -->
+
+	<!-- Available Parameters -->
+	<params>
+
+		<param type="text" name="topic" default="continue" label="topic" hint="Sets the topic" />
+
+		<param type="boolean" name="true" default="True" label="true" hint="Sets the true" />
+
+		<param type="boolean" name="false" default="False" label="false" hint="Sets the false" />
+
+		<param type="numeric" name="num_reps" default="5" label="num_reps" hint="Sets the num_reps">
+			<min value="0" />
+			<max value="31" />
+		</param>
+
+		<param type="text" name="robot1_name" default="pioneer" label="robot1_name" hint="Sets the robot1_name" />
+
+		<param type="text" name="robot1_start" default="0.0, 0.0, 1.0" label="robot1_start" hint="Sets the robot1_start" />
+
+		<param type="text" name="robot1_goal" default="5.0, 0.0, 1.0" label="robot1_goal" hint="Sets the robot1_goal" />
+
+		<param type="text" name="robot2_name" default="pioneer_bot" label="robot2_name" hint="Sets the robot2_name" />
+
+		<param type="text" name="robot2_start" default="0.0, 8.0, 1.0" label="robot2_start" hint="Sets the robot2_start" />
+
+		<param type="text" name="robot2_goal" default="5.0, 8.0, 1.0" label="robot2_goal" hint="Sets the robot2_goal" />
+
+	</params>
+
+
+</behavior>

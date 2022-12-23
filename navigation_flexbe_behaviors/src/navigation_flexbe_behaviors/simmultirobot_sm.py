@@ -66,9 +66,9 @@ class SimMultiRobotSM(Behavior):
 		# [/MANUAL_CREATE]
 
 		# x:837 y:345, x:130 y:451
-		_sm_container_2_0 = OperatableStateMachine(outcomes=['finished', 'failed'])
+		_sm_robot2_0 = OperatableStateMachine(outcomes=['finished', 'failed'])
 
-		with _sm_container_2_0:
+		with _sm_robot2_0:
 			# x:95 y:196
 			OperatableStateMachine.add('GoalPub_R2',
 										GoalPublisherMB(robot_names=self.robot2_name, robot_goals=self.robot2_goal),
@@ -85,9 +85,9 @@ class SimMultiRobotSM(Behavior):
 
 
 		# x:798 y:427, x:306 y:449
-		_sm_container_1 = OperatableStateMachine(outcomes=['finished', 'failed'])
+		_sm_robot1_1 = OperatableStateMachine(outcomes=['finished', 'failed'])
 
-		with _sm_container_1:
+		with _sm_robot1_1:
 			# x:101 y:152
 			OperatableStateMachine.add('GoalPub_R1',
 										GoalPublisherMB(robot_names=self.robot1_name, robot_goals=self.robot1_goal),
@@ -103,24 +103,23 @@ class SimMultiRobotSM(Behavior):
 										remapping={'goal': 'r1_goal'})
 
 
-		# x:472 y:341, x:1064 y:103, x:1071 y:392, x:465 y:69, x:451 y:596, x:584 y:646
+		# x:481 y:250, x:201 y:369, x:1071 y:392, x:755 y:354, x:451 y:596, x:584 y:646
 		_sm_container_2 = ConcurrencyContainer(outcomes=['finished', 'failed'], conditions=[
-										('finished', [('Container', 'finished')]),
-										('finished', [('Container_2', 'finished')]),
-										('failed', [('Container', 'failed')]),
-										('failed', [('Container_2', 'failed')])
+										('finished', [('Robot1', 'finished'), ('Robot2', 'finished')]),
+										('failed', [('Robot1', 'failed')]),
+										('failed', [('Robot2', 'failed')])
 										])
 
 		with _sm_container_2:
 			# x:170 y:165
-			OperatableStateMachine.add('Container',
-										_sm_container_1,
+			OperatableStateMachine.add('Robot1',
+										_sm_robot1_1,
 										transitions={'finished': 'finished', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit})
 
 			# x:711 y:170
-			OperatableStateMachine.add('Container_2',
-										_sm_container_2_0,
+			OperatableStateMachine.add('Robot2',
+										_sm_robot2_0,
 										transitions={'finished': 'finished', 'failed': 'failed'},
 										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit})
 

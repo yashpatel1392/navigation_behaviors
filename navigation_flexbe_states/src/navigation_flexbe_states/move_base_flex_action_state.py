@@ -9,6 +9,7 @@ from nav_msgs.msg import Path, Odometry
 from mbf_msgs.msg import ExePathAction
 from mbf_msgs.msg import ExePathGoal
 from mbf_msgs.msg import MoveBaseAction
+from tf.transformations import euler_from_quaternion
 
 import rospy
 
@@ -31,31 +32,39 @@ class MoveBaseFlexActionState(EventState):
         Logger.loginfo("%s" % str(self._robot_name))
 
         self._path_topic = self._robot_name + "/path"
-        self._odom_topic = self._robot_name + "/odom"
+        self._map_pose_topic = self._robot_name + "/map_pose"
         self._goal_pose_topic = self._robot_name + "/goal_pose"
-        
-        self._sub = ProxySubscriberCached({self._path_topic: Path, self._odom_topic: Odometry, self._goal_pose_topic: PoseStamped})
+            
+        self._sub = ProxySubscriberCached({self._path_topic: Path, self._map_pose_topic: PoseStamped, self._goal_pose_topic: PoseStamped})
         
         self._action_topic = self._robot_name + "_move_base_flex/exe_path"
         Logger.loginfo("\n%s" % str(self._action_topic))
         self._client = ProxyActionClient({self._action_topic: ExePathAction})
-
+        
     def execute(self, userdata):
         Logger.loginfo("Execute Begins")
         # checker 
-        if self._sub.has_msg(self._odom_topic):
-            self._odom_data = self._sub.get_last_msg(self._odom_topic)
-            self._sub.remove_last_msg(self._odom_topic)
-        
+        if self._sub.has_msg(self._map_pose_topic):
+            self._map_pose_data = self._sub.get_last_msg(self._map_pose_topic)
+            self._sub.remove_last_msg(self._map_pose_topic)        
+            
         if self._sub.has_msg(self._goal_pose_topic):
             self._goal_pose_data = self._sub.get_last_msg(self._goal_pose_topic)
             self._sub.remove_last_msg(self._goal_pose_topic)
+
+        orient = self._map_pose_data.pose.orientation
+        (_, _, current_yaw) = euler_from_quaternion([orient.x,orient.y,orient.z,orient.w])       
         
+        g_orient = self._goal_pose_data.pose.orientation
+        (_, _, goal_yaw) = euler_from_quaternion([g_orient.x,g_orient.y,g_orient.z,g_orient.w])
+
         self._positions_match = False
         
-        if all([abs(self._odom_data.pose.pose.position.x - self._goal_pose_data.pose.position.x) < 0.5,
-            abs(self._odom_data.pose.pose.position.y - self._goal_pose_data.pose.position.y) < 0.5,
-            abs(self._odom_data.pose.pose.orientation.w - self._goal_pose_data.pose.orientation.w) < 0.09]):
+        print("Current (%f, %f, %f) Goal (%f, %f, %f)" % (self._map_pose_data.pose.position.x, self._map_pose_data.pose.position.y, current_yaw, self._goal_pose_data.pose.position.x, self._goal_pose_data.pose.position.y, goal_yaw))
+        
+        if all([abs(self._map_pose_data.pose.position.x - self._goal_pose_data.pose.position.x) < 0.5,
+            abs(self._map_pose_data.pose.position.y - self._goal_pose_data.pose.position.y) < 0.5,
+            abs(current_yaw - goal_yaw) < 0.09]):
                 Logger.loginfo("Positions matched, goal is reached!")
                 self._positions_match = True
         
@@ -72,8 +81,8 @@ class MoveBaseFlexActionState(EventState):
 
     def on_enter(self, userdata):      
         Logger.loginfo("OnEnter Begins")
-            
-        while True:
+
+        while True:                
             if self._sub.has_msg(self._path_topic):
                 goal = ExePathGoal()
                 goal.controller = "TrajectoryPlannerROS"
