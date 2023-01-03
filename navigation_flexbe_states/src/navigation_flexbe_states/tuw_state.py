@@ -76,6 +76,7 @@ class TuwState(EventState):
         
     def on_enter(self, userdata):
         print("-=-=-=-=-= ONENTER")
+        time.sleep(5)
         
 
     def on_exit(self, userdata):

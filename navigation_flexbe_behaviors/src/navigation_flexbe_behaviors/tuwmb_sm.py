@@ -9,9 +9,8 @@
 
 from flexbe_core import Behavior, Autonomy, OperatableStateMachine, ConcurrencyContainer, PriorityContainer, Logger
 from navigation_flexbe_states.counter import CounterState
-from navigation_flexbe_states.mbf_movers import MBFMovers
 from navigation_flexbe_states.pause import PauseState
-from navigation_flexbe_states.tuw_goal_sender_mthread import TuwGoalPublisherStateMThread
+from navigation_flexbe_states.tuw_oa import TuwMBOA
 from navigation_flexbe_states.tuw_state import TuwState
 # Additional imports can be added inside the following tags
 # [MANUAL_IMPORT]
@@ -20,18 +19,18 @@ from navigation_flexbe_states.tuw_state import TuwState
 
 
 '''
-Created on Wed Dec 21 2022
+Created on @author: yashp
 @author: yashp
 '''
-class MBFMultiRobotSM(Behavior):
+class TUWMBSM(Behavior):
 	'''
-	MBFMultiRobot
+	TUWMB
 	'''
 
 
 	def __init__(self):
-		super(MBFMultiRobotSM, self).__init__()
-		self.name = 'MBFMultiRobot'
+		super(TUWMBSM, self).__init__()
+		self.name = 'TUWMB'
 
 		# parameters of this behavior
 		self.add_parameter('robot_names', 'pioneer, pioneer_bot')
@@ -63,48 +62,46 @@ class MBFMultiRobotSM(Behavior):
 		
 		# [/MANUAL_CREATE]
 
-		# x:369 y:197, x:160 y:295, x:594 y:282, x:91 y:333, x:430 y:365
-		_sm_tuwreset_0 = ConcurrencyContainer(outcomes=['finished', 'failed'], output_keys=['robot_reset_paths'], conditions=[
-										('finished', [('ResetGoalPublisher', 'success'), ('ResetGoalSender', 'success')]),
-										('failed', [('ResetGoalSender', 'failed')]),
-										('failed', [('ResetGoalPublisher', 'failed')])
+		# x:541 y:343, x:318 y:297, x:230 y:365, x:132 y:299, x:430 y:365
+		_sm_reset_0 = ConcurrencyContainer(outcomes=['finished', 'failed'], conditions=[
+										('failed', [('ResetGoalSender', 'failed'), ('ResetMovers', 'failed')]),
+										('finished', [('ResetGoalSender', 'success')]),
+										('finished', [('ResetMovers', 'success')])
 										])
 
-		with _sm_tuwreset_0:
-			# x:121 y:99
+		with _sm_reset_0:
+			# x:68 y:112
+			OperatableStateMachine.add('ResetMovers',
+										TuwMBOA(robot_names=self.robot_names, robot_goals=self.robot_start),
+										transitions={'success': 'finished', 'failed': 'failed'},
+										autonomy={'success': Autonomy.Off, 'failed': Autonomy.Off})
+
+			# x:470 y:126
 			OperatableStateMachine.add('ResetGoalSender',
 										TuwState(robot_names=self.robot_names, robot_goals=self.robot_start),
 										transitions={'success': 'finished', 'failed': 'failed'},
 										autonomy={'success': Autonomy.Off, 'failed': Autonomy.Off})
 
-			# x:533 y:115
-			OperatableStateMachine.add('ResetGoalPublisher',
-										TuwGoalPublisherStateMThread(robot_names=self.robot_names),
-										transitions={'success': 'finished', 'failed': 'failed'},
-										autonomy={'success': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'robot_paths_OUT': 'robot_reset_paths'})
 
-
-		# x:323 y:217, x:234 y:367, x:716 y:118, x:438 y:563, x:430 y:365
-		_sm_tuwnav_1 = ConcurrencyContainer(outcomes=['finished', 'failed'], output_keys=['robot_paths'], conditions=[
-										('finished', [('NavGoalPublisher', 'success'), ('NavGoalSender', 'success')]),
-										('failed', [('NavGoalSender', 'failed')]),
-										('failed', [('NavGoalPublisher', 'failed')])
+		# x:68 y:274, x:228 y:228, x:486 y:164, x:330 y:365, x:430 y:365
+		_sm_navigation_1 = ConcurrencyContainer(outcomes=['finished', 'failed'], conditions=[
+										('finished', [('NavGoalSender', 'success')]),
+										('failed', [('NavGoalSender', 'failed'), ('NavGoalMovers', 'failed')]),
+										('finished', [('NavGoalMovers', 'success')])
 										])
 
-		with _sm_tuwnav_1:
-			# x:46 y:205
+		with _sm_navigation_1:
+			# x:65 y:97
 			OperatableStateMachine.add('NavGoalSender',
 										TuwState(robot_names=self.robot_names, robot_goals=self.robot_goals),
 										transitions={'success': 'finished', 'failed': 'failed'},
 										autonomy={'success': Autonomy.Off, 'failed': Autonomy.Off})
 
-			# x:492 y:205
-			OperatableStateMachine.add('NavGoalPublisher',
-										TuwGoalPublisherStateMThread(robot_names=self.robot_names),
+			# x:343 y:51
+			OperatableStateMachine.add('NavGoalMovers',
+										TuwMBOA(robot_names=self.robot_names, robot_goals=self.robot_goals),
 										transitions={'success': 'finished', 'failed': 'failed'},
-										autonomy={'success': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'robot_paths_OUT': 'robot_paths'})
+										autonomy={'success': Autonomy.Off, 'failed': Autonomy.Off})
 
 
 
@@ -112,7 +109,7 @@ class MBFMultiRobotSM(Behavior):
 			# x:83 y:214
 			OperatableStateMachine.add('Counter',
 										CounterState(decrement=self.false),
-										transitions={'success': 'TUWNav', 'failed': 'failed', 'end': 'finished'},
+										transitions={'success': 'Navigation', 'failed': 'failed', 'end': 'finished'},
 										autonomy={'success': Autonomy.Off, 'failed': Autonomy.Off, 'end': Autonomy.Off},
 										remapping={'num_reps': 'counter2_OUT', 'num_reps_remaining': 'counter1_OUT'})
 
@@ -123,17 +120,16 @@ class MBFMultiRobotSM(Behavior):
 										autonomy={'success': Autonomy.Off, 'failed': Autonomy.Off, 'end': Autonomy.Off},
 										remapping={'num_reps': 'counter1_OUT', 'num_reps_remaining': 'counter2_OUT'})
 
-			# x:722 y:40
-			OperatableStateMachine.add('NavMBFMovers',
-										MBFMovers(robot_names=self.robot_names),
-										transitions={'success': 'Pause', 'failed': 'failed'},
-										autonomy={'success': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'robot_paths_IN': 'robot_paths'})
+			# x:355 y:44
+			OperatableStateMachine.add('Navigation',
+										_sm_navigation_1,
+										transitions={'finished': 'Pause', 'failed': 'failed'},
+										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit})
 
-			# x:945 y:117
+			# x:686 y:85
 			OperatableStateMachine.add('Pause',
 										PauseState(topic=self.topic),
-										transitions={'success': 'TUWReset'},
+										transitions={'success': 'Reset'},
 										autonomy={'success': Autonomy.Off})
 
 			# x:479 y:471
@@ -142,26 +138,11 @@ class MBFMultiRobotSM(Behavior):
 										transitions={'success': 'DecrementReps'},
 										autonomy={'success': Autonomy.Off})
 
-			# x:751 y:417
-			OperatableStateMachine.add('ResetMBFMovers',
-										MBFMovers(robot_names=self.robot_names),
-										transitions={'success': 'Pause2', 'failed': 'failed'},
-										autonomy={'success': Autonomy.Off, 'failed': Autonomy.Off},
-										remapping={'robot_paths_IN': 'robot_reset_paths'})
-
-			# x:439 y:30
-			OperatableStateMachine.add('TUWNav',
-										_sm_tuwnav_1,
-										transitions={'finished': 'NavMBFMovers', 'failed': 'failed'},
-										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
-										remapping={'robot_paths': 'robot_paths'})
-
-			# x:964 y:352
-			OperatableStateMachine.add('TUWReset',
-										_sm_tuwreset_0,
-										transitions={'finished': 'ResetMBFMovers', 'failed': 'failed'},
-										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit},
-										remapping={'robot_reset_paths': 'robot_reset_paths'})
+			# x:716 y:278
+			OperatableStateMachine.add('Reset',
+										_sm_reset_0,
+										transitions={'finished': 'Pause2', 'failed': 'failed'},
+										autonomy={'finished': Autonomy.Inherit, 'failed': Autonomy.Inherit})
 
 
 		return _state_machine

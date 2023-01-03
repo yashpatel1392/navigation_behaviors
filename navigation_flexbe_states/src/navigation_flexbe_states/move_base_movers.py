@@ -82,6 +82,7 @@ class MoveBaseMovers(EventState):
         return False
 
     def execute(self, userdata):
+        print("----------------- execute")
         for map_pose_topic, goal_pose, action_topic in zip(self._map_pose_topics, userdata.robot_goals_IN, self._action_topics):    
             print("----------action topic: ", action_topic)
             if self.check_positions_matched(map_pose_topic, goal_pose):

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from flexbe_core import EventState, Logger
-from flexbe_core.proxy import ProxySubscriberCached
+from flexbe_core.proxy import ProxySubscriberCached, ProxyPublisher
 from std_msgs.msg import String
 
 import rospy
@@ -21,6 +21,7 @@ class PauseState(EventState):
         super(PauseState, self).__init__(outcomes=['success'])
         self._topic = topic
         self._sub = ProxySubscriberCached({self._topic: String})
+        self._pub = ProxyPublisher({self._topic: String})
     
     def execute(self, userdata):
         if self._topic:
@@ -35,7 +36,13 @@ class PauseState(EventState):
 
 
     def on_exit(self, userdata):
+        pause_msg = String()
+        pause_msg.data = "pause"
+        self._pub.publish(self._topic, pause_msg)
         pass
 
     def on_stop(self):
+        pause_msg = String()
+        pause_msg.data = "pause"
+        self._pub.publish(self._topic, pause_msg)
         pass
