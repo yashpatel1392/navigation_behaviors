@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<behavior name="TUWMB">
+<behavior name="TUWMB_phys">
 
-	<executable package_path="navigation_flexbe_behaviors.tuwmb_sm" class="TUWMBSM" />
-	<tagstring>TUWMB</tagstring>
+	<executable package_path="navigation_flexbe_behaviors.tuwmb_phys_sm" class="TUWMB_physSM" />
+	<tagstring>TUWMB_phys</tagstring>
 	<author>yashp</author>
-	<date>Tue Jan 3 2023</date>
+	<date>Wed Jan 4 2023</date>
 	<description>
-		TUWMB
+		TUWMB_phys
 	</description>
 
 
@@ -16,9 +16,9 @@
 	<!-- Available Parameters -->
 	<params>
 
-		<param type="text" name="robot_names" default="pioneer, pioneer_bot" label="robot_names" hint="Sets the robot_names" />
+		<param type="text" name="robot_names" default="stretch, pioneer_bot" label="robot_names" hint="Sets the robot_names" />
 
-		<param type="text" name="robot_goals" default="1.0, 16.0, 1.0, 1.0, 4.0, 1.0" label="robot_goals" hint="Sets the robot_goals" />
+		<param type="text" name="robot_goals" default="0.39, -6.0, 1.0, 0.31, -2.93, 1.0" label="robot_goals" hint="Sets the robot_goals" />
 
 		<param type="text" name="topic" default="continue" label="topic" hint="Sets the topic" />
 
@@ -31,7 +31,7 @@
 			<max value="31" />
 		</param>
 
-		<param type="text" name="robot_start" default="0.0, 0.0, 1.0, 0.0, 20.0, 1.0" label="robot_start" hint="Sets the robot_start" />
+		<param type="text" name="robot_start" default="0.15, -0.148, 1.0, 0.17, -8.59, 1.0" label="robot_start" hint="Sets the robot_start" />
 
 	</params>
 

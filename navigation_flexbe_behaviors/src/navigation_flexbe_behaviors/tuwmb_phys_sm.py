@@ -19,27 +19,27 @@ from navigation_flexbe_states.tuw_state import TuwState
 
 
 '''
-Created on Tue Jan 3 2023
+Created on Wed Jan 4 2023
 @author: yashp
 '''
-class TUWMBSM(Behavior):
+class TUWMB_physSM(Behavior):
 	'''
-	TUWMB
+	TUWMB_phys
 	'''
 
 
 	def __init__(self):
-		super(TUWMBSM, self).__init__()
-		self.name = 'TUWMB'
+		super(TUWMB_physSM, self).__init__()
+		self.name = 'TUWMB_phys'
 
 		# parameters of this behavior
-		self.add_parameter('robot_names', 'pioneer, pioneer_bot')
-		self.add_parameter('robot_goals', '1.0, 16.0, 1.0, 1.0, 4.0, 1.0')
+		self.add_parameter('robot_names', 'stretch, pioneer_bot')
+		self.add_parameter('robot_goals', '0.39, -6.0, 1.0, 0.31, -2.93, 1.0')
 		self.add_parameter('topic', 'continue')
 		self.add_parameter('true', True)
 		self.add_parameter('false', False)
 		self.add_parameter('num_reps', 5)
-		self.add_parameter('robot_start', '0.0, 0.0, 1.0, 0.0, 20.0, 1.0')
+		self.add_parameter('robot_start', '0.15, -0.148, 1.0, 0.17, -8.59, 1.0')
 
 		# references to used behaviors
 

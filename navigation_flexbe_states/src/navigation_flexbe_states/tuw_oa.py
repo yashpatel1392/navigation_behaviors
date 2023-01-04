@@ -15,8 +15,7 @@ from move_base_msgs.msg import *
 class TuwMBOA(EventState):
     """
     -- robot_names   string      robot namespaces.
-
-    #> robot_paths   list of paths  this is the list of robot paths
+    -- robot_goals   stirng      list of goal positions (x, y, orient)
 
     <= success                  indicates successful completion of navigation.
     <= failed                   indicates unsuccessful completion of navigation.
@@ -25,7 +24,7 @@ class TuwMBOA(EventState):
 
     def __init__(self, robot_names, robot_goals):
         super(TuwMBOA, self).__init__(outcomes=['success', 'failed'])
-        
+        print("initializing the state.....")
         self._robot_names_list = robot_names.split(", ")
         self._robot_goals_first_list = [float(i) for i in robot_goals.split(", ")]
         self._robot_goals_list = [self._robot_goals_first_list[i:i + 3] for i in
@@ -45,7 +44,7 @@ class TuwMBOA(EventState):
         self._action_dict = dict.fromkeys(self._action_topics, MoveBaseAction)        
 
         self._clients = ProxyActionClient(self._action_dict)        
-        self._outcomes_list = dict.fromkeys(self._action_topics, False)
+        
 
 
         self._threads_list = []
@@ -57,8 +56,14 @@ class TuwMBOA(EventState):
         self._map_pose_subs = ProxySubscriberCached(self._map_pose_dict)
 
         self._poses_received = {}
+        self._outcomes_list = dict.fromkeys(self._action_topics, False)
 
         self._enter_loop = False
+        
+        print("initialized the state............")
+        
+        self.counter = 0
+    
 
 
 
@@ -97,14 +102,13 @@ class TuwMBOA(EventState):
         self._clients.send_goal(action_topic, goal)
 
     def execute(self, userdata):
-        while True:
-            print("-------------------- In execute()")
-            print("--------------- entering for loop")
-            print("bool value enter loop ", self._enter_loop)
-            
+        first_wait = True
+        while True:        
             if self._enter_loop:
-                print("bool value ", self._goals_dict["pioneer"][0])
-                
+                if first_wait:
+                    time.sleep(2)
+                    first_wait = False
+                             
                 for name, action_topic, map_pose_topic in zip(self._robot_names_list, self._action_topics, self._map_pose_topics):
                     if not self._poses_received[name] and self._goals_dict[name][0]:
                         self.send_goal(action_topic, self._goals_dict[name][1])
@@ -116,15 +120,11 @@ class TuwMBOA(EventState):
                             if self._clients.has_result(action_topic):
                                 status = self._clients.get_state(action_topic)
                                 if status == GoalStatus.SUCCEEDED:
+                                    print("@@@@@@@@@@@@@@@@@@@@@@ Success for ", name)
                                     if self._outcomes_list[action_topic] != True:
                                         self._outcomes_list[action_topic] = True 
                                 elif status in [GoalStatus.PREEMPTED, GoalStatus.REJECTED, GoalStatus.ABORTED]:
                                     return 'failed'
-            
-            # print("waiting for 10 secs")
-            # time.sleep(10)
-            # print("waiting finished........")
-            # self._enter_loop = True
 
             print(self._success_dict.values())
             print(self._outcomes_list)
@@ -134,16 +134,16 @@ class TuwMBOA(EventState):
                 for thread in self._threads_list:
                     thread.join()
                 return 'success'
-            
-            print("----- out of execute")
         
+            print("exiting..........")
 
     
     def is_path_received(self, robot_name, robot_goal):
         while True:
             # goal_pose = PoseStamped()
             # self._goals_dict[robot_name] = [False, goal_pose]
-            if self._sub.has_msg(robot_name + "/path"):      
+            if self._sub.has_msg(robot_name + "/path"):   
+                self._outcomes_list[robot_name + "_move_base"] = False  
                 print("found a path for -------------- ", robot_name)          
                 path = self._sub.get_last_msg(robot_name + "/path")
                                 
@@ -154,11 +154,14 @@ class TuwMBOA(EventState):
                 
                 self._sub.remove_last_msg(robot_name + "/path")
                 
+                print("-----------------------------------------------------------")
+                print("Goal is (%f, %f)" % (new_goal_pose.pose.position.x, new_goal_pose.pose.position.y))
+                print("-----------------------------------------------------------")
                 checklist = [abs(new_goal_pose.pose.position.x - robot_goal[0]) < 0.5,
                              abs(new_goal_pose.pose.position.y - robot_goal[1]) < 0.5]
                             #  abs(new_goal_pose.pose.orientation.w - robot_goal[2] < 0.09)]
                 
-                print("done for -------------- ", robot_name)   
+                # print("done for -------------- ", robot_name)   
                 print("boolean value: ", self._goals_dict[robot_name][0])
                 self._enter_loop = True       
 
@@ -170,9 +173,23 @@ class TuwMBOA(EventState):
 
     def on_enter(self, userdata):
         print("-------------------- In on_enter()")
+        print("@@@@@@@@@@@@@############## GOALS DICT ", self._goals_dict)
+        print("POSES DICT: ", self._poses_received)
         
         if len(self._threads_list) != 0:
-            self._threads_list.clear()        
+            # self._threads_list.clear() 
+            self._threads_list = []      
+            
+        # if len(self._goals_dict) != 0:
+        self._goals_dict = {} 
+        for name in self._robot_names_list:
+            self._goals_dict[name] = [False, PoseStamped()]
+            print("##############@@@@@@@@@@@@@ GOALS DICT ", self._goals_dict)
+
+
+        self._enter_loop = False
+        self._poses_received = {}
+        self._outcomes_list = dict.fromkeys(self._action_topics, False)
         
         for i in range(len(self._robot_names_list)):
             print("Robot Name: ", self._robot_names_list[i])
@@ -182,13 +199,23 @@ class TuwMBOA(EventState):
                 self._threads_list[i].start()
 
 
+    # copied from armada_behaviors
+    def cancel_active_goals(self):
+        for action_topic in self._action_topics:
+            if self._clients.is_available(action_topic):
+                if self._clients.is_active(action_topic):
+                    if not self._clients.has_result(action_topic):
+                        self._clients.cancel(action_topic)
+                        Logger.loginfo('Cancelled move_base active action goal.')
+
     def on_exit(self, userdata):
-        # print("Number of paths sent out are: %f" % (len(self._robot_paths)))
-        # print("Number of paths sent out are: %f" % (len(userdata.robot_paths_OUT)))
-        
-        # for thread in self._threads_list:
-        #     thread.exit()
-        pass
+        print("cancelling the goals due to exit..........")
+        self.cancel_active_goals()
+        print("cancelled the goals due to exit..........")
+
 
     def on_stop(self):
-        pass
+        print("cancelling the goals as the state is stopped..........")
+        self.cancel_active_goals()
+        print("cancelled the goals as the state is stopped..........")
+

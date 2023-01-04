@@ -70,7 +70,8 @@ class TuwGoalPublisherStateMThread(EventState):
         print("-------------------- In on_enter()")
         
         if len(self._threads_list) != 0:
-            self._threads_list.clear()        
+            # self._threads_list.clear() 
+            self._threads_list = []       
         
         for i in range(len(self._robot_names_list)):
             print("Robot Name: ", self._robot_names_list[i])
@@ -84,8 +85,8 @@ class TuwGoalPublisherStateMThread(EventState):
         print("Number of paths sent out are: %f" % (len(self._robot_paths)))
         print("Number of paths sent out are: %f" % (len(userdata.robot_paths_OUT)))
         
-        for thread in self._threads_list:
-            thread.exit()
+        # for thread in self._threads_list:
+        #     thread.exit()
 
     def on_stop(self):
         pass
