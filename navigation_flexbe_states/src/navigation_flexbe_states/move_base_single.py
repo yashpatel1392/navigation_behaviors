@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 
 from flexbe_core import EventState, Logger
-from flexbe_core.proxy import ProxyActionClient, ProxySubscriberCached
+from flexbe_core.proxy import ProxyActionClient, ProxySubscriberCached, ProxyPublisher
 
 from actionlib_msgs.msg import GoalStatus
 from move_base_msgs.msg import *
 from geometry_msgs.msg import *
 from nav_msgs.msg import Odometry
 from tf.transformations import euler_from_quaternion
-
+from std_msgs.msg import Bool
 import rospy
 
 # ># waypoint     Pose2D      goal coordinates for the robot.
@@ -39,11 +39,14 @@ class MoveBaseState(EventState):
         
         Logger.loginfo("\n%s" % str(self._action_topic))
         self._client = ProxyActionClient({self._action_topic: MoveBaseAction})
-        
+        self._pub = ProxyPublisher({"/test_status": Bool})
+
         self._goal_pose_data = PoseStamped()
 
     def execute(self, userdata):
         print ("in_execute")
+        
+        
         
         if self._sub.has_msg(self._odom_topic):
             self._odom_data = self._sub.get_last_msg(self._odom_topic)
@@ -79,6 +82,10 @@ class MoveBaseState(EventState):
                 return 'failed'
 
     def on_enter(self, userdata):            
+        goal_msg = Bool()
+        goal_msg.data = True
+        self._pub.publish(self._topic_name, goal_msg)
+        
         self._goal_pose_data = userdata.goal[0]
         goal = MoveBaseGoal()
         goal.target_pose.header.frame_id = "map"

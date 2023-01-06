@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 
 from flexbe_core import EventState, Logger
-from flexbe_core.proxy import ProxyActionClient, ProxySubscriberCached
+from flexbe_core.proxy import ProxyActionClient, ProxySubscriberCached, ProxyPublisher
 
 from actionlib_msgs.msg import GoalStatus
 from move_base_msgs.msg import *
 from geometry_msgs.msg import *
 from nav_msgs.msg import Odometry
 from tf.transformations import euler_from_quaternion
+from std_msgs.msg import Bool
 
 import rospy
 
@@ -39,7 +40,8 @@ class PhyMoveBaseState(EventState):
         
         Logger.loginfo("\n%s" % str(self._action_topic))
         self._client = ProxyActionClient({self._action_topic: MoveBaseAction})
-        
+        self._status_topic = self._robot_name + "/test_status"
+
         self._goal_pose_data = PoseStamped()
 
     def execute(self, userdata):
@@ -84,7 +86,7 @@ class PhyMoveBaseState(EventState):
 
         print ("out of execute")
 
-    def on_enter(self, userdata):            
+    def on_enter(self, userdata):                    
         self._goal_pose_data = userdata.goal[0]
         goal = MoveBaseGoal()
         goal.target_pose.header.frame_id = "map"

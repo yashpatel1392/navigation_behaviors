@@ -10,7 +10,6 @@
 from flexbe_core import Behavior, Autonomy, OperatableStateMachine, ConcurrencyContainer, PriorityContainer, Logger
 from navigation_flexbe_states.counter import CounterState
 from navigation_flexbe_states.goal_publisher_mb import GoalPublisherMB
-from navigation_flexbe_states.pause import PauseState
 from navigation_flexbe_states.physical_move_base import PhyMoveBaseState
 from navigation_flexbe_states.start_loggers import Loggers
 # Additional imports can be added inside the following tags
@@ -23,24 +22,23 @@ from navigation_flexbe_states.start_loggers import Loggers
 Created on Tue Dec 20 2022
 @author: yashp
 '''
-class PhysPioneerMBSM(Behavior):
+class SinglePioneerwithoutPauseSM(Behavior):
 	'''
 	PhysPioneerMB
 	'''
 
 
 	def __init__(self):
-		super(PhysPioneerMBSM, self).__init__()
-		self.name = 'PhysPioneerMB'
+		super(SinglePioneerwithoutPauseSM, self).__init__()
+		self.name = 'SinglePioneer (without Pause)'
 
 		# parameters of this behavior
 		self.add_parameter('robot_name', 'pioneer_bot')
-		self.add_parameter('robot_start', '0.2, -0.083, 1.0')
-		self.add_parameter('robot_goal', '2.2, -0.083, 1.0')
-		self.add_parameter('pause_topic', 'continue')
+		self.add_parameter('robot_start', '0.14, -2.75, 1.0')
+		self.add_parameter('robot_goal', '0.2, -5.96, 1.0')
 		self.add_parameter('true', True)
 		self.add_parameter('false', False)
-		self.add_parameter('num_reps', 0)
+		self.add_parameter('num_reps', 5)
 
 		# references to used behaviors
 
@@ -72,10 +70,10 @@ class PhysPioneerMBSM(Behavior):
 										autonomy={'success': Autonomy.Off, 'failed': Autonomy.Off, 'end': Autonomy.Off},
 										remapping={'num_reps': 'counter2_OUT', 'num_reps_remaining': 'counter1_OUT'})
 
-			# x:880 y:36
+			# x:922 y:69
 			OperatableStateMachine.add('DeactivateLogger',
 										Loggers(robot_names=self.robot_name, activate=self.false),
-										transitions={'success': 'Pause1', 'failed': 'failed'},
+										transitions={'success': 'ResetActivateLogger', 'failed': 'failed'},
 										autonomy={'success': Autonomy.Off, 'failed': Autonomy.Off})
 
 			# x:241 y:486
@@ -99,18 +97,6 @@ class PhysPioneerMBSM(Behavior):
 										autonomy={'success': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'goal': 'nav_goal'})
 
-			# x:1124 y:98
-			OperatableStateMachine.add('Pause1',
-										PauseState(topic=self.pause_topic),
-										transitions={'success': 'ResetActivateLogger'},
-										autonomy={'success': Autonomy.Off})
-
-			# x:376 y:655
-			OperatableStateMachine.add('Pause2',
-										PauseState(topic=self.pause_topic),
-										transitions={'success': 'DecrementReps'},
-										autonomy={'success': Autonomy.Off})
-
 			# x:1143 y:288
 			OperatableStateMachine.add('ResetActivateLogger',
 										Loggers(robot_names=self.robot_name, activate=self.true),
@@ -120,7 +106,7 @@ class PhysPioneerMBSM(Behavior):
 			# x:637 y:583
 			OperatableStateMachine.add('ResetDeactivateLogger',
 										Loggers(robot_names=self.robot_name, activate=self.false),
-										transitions={'success': 'Pause2', 'failed': 'failed'},
+										transitions={'success': 'DecrementReps', 'failed': 'failed'},
 										autonomy={'success': Autonomy.Off, 'failed': Autonomy.Off})
 
 			# x:1153 y:474
