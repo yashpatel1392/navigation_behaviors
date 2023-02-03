@@ -28,7 +28,7 @@ class CommandLauncher(EventState):
     """
 
     def __init__(self, command_to_run, topic_name):
- 		# Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
+        # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
 
         super(CommandLauncher, self).__init__(outcomes=['success', 'failed'])
         self._command = command_to_run + " &"
@@ -37,8 +37,8 @@ class CommandLauncher(EventState):
 
     def execute(self, userdata):
         # This method is called periodically while the state is active.
-		# Main purpose is to check state conditions and trigger a corresponding outcome.
-		# If no outcome is returned, the state will stay active.
+        # Main purpose is to check state conditions and trigger a corresponding outcome.
+        # If no outcome is returned, the state will stay active.
 
         if self._topic_name:
             sub_created = False
@@ -60,14 +60,13 @@ class CommandLauncher(EventState):
         
     def on_enter(self, userdata):
         # This method is called when the state becomes active, i.e. a transition from another state to this one is taken.
-
         os.system(self._command)
 
 
     def on_exit(self, userdata):
         # This method is called when an outcome is returned and another state gets active.
         pass # Nothing to do here
-    
+
 
     def on_stop(self):
         # This method is called whenever the behavior stops execution, also if it is cancelled.

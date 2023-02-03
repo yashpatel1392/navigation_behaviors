@@ -11,7 +11,7 @@ class PublisherState(EventState):
     in as a parameter.
 
     -- topic_name   string      topic name.
-    
+
     <= success                  indicates successful completion of navigation.
     <= failed                   indicates unsuccessful completion of navigation.
 
@@ -27,8 +27,8 @@ class PublisherState(EventState):
 
     def execute(self, userdata):
         # This method is called periodically while the state is active.
-		# Main purpose is to check state conditions and trigger a corresponding outcome.
-		# If no outcome is returned, the state will stay active.
+        # Main purpose is to check state conditions and trigger a corresponding outcome.
+        # If no outcome is returned, the state will stay active.
 
         return 'success'
 
@@ -49,4 +49,3 @@ class PublisherState(EventState):
     def on_stop(self):
         # This method is called whenever the behavior stops execution, also if it is cancelled.
         pass # Nothing to do here
-    

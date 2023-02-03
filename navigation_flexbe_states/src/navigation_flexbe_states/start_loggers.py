@@ -13,7 +13,7 @@ class Loggers(EventState):
 
     -- robot_names  string      list of robot names.
     -- activate     bool        boolean for activating/deactivating loggers.
-    
+
     <= success                  indicates successful completion of navigation.
     <= failed                   indicates unsuccessful completion of navigation.
 
@@ -35,8 +35,8 @@ class Loggers(EventState):
 
     def execute(self, userdata):
         # This method is called periodically while the state is active.
-		# Main purpose is to check state conditions and trigger a corresponding outcome.
-		# If no outcome is returned, the state will stay active.
+        # Main purpose is to check state conditions and trigger a corresponding outcome.
+        # If no outcome is returned, the state will stay active.
         
         # This state always returns success
         return 'success'

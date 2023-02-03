@@ -9,7 +9,6 @@ import rospy, time
 
 
 class TuwState(EventState):
-
     """
     This state publishes the goal coordinates to TUW, which then publishes the path
     for each of the robot individually. This state should be run parallel to 
@@ -30,15 +29,15 @@ class TuwState(EventState):
         self._robot_names_list = robot_names.split(", ")
         self._robot_goals_first_list = [float(i) for i in robot_goals.split(", ")]
         self._robot_goals_list = [self._robot_goals_first_list[i:i + 3] for i in
-                                  range(0, len(self._robot_goals_first_list), 3)]
+                                    range(0, len(self._robot_goals_first_list), 3)]
         self._pub = ProxyPublisher({"/goals": RobotGoalsArray})
         self._sent_goals = RobotGoalsArray()
         
 
     def execute(self, userdata):
         # This method is called periodically while the state is active.
-		# Main purpose is to check state conditions and trigger a corresponding outcome.
-		# If no outcome is returned, the state will stay active.
+        # Main purpose is to check state conditions and trigger a corresponding outcome.
+        # If no outcome is returned, the state will stay active.
         
         goal_msg = RobotGoalsArray()
         goal_msg.header.frame_id = "map"
@@ -76,7 +75,7 @@ class TuwState(EventState):
         
     def on_enter(self, userdata):
         # This method is called when the state becomes active, i.e. a transition from another state to this one is taken.
-       
+        
         time.sleep(5) # can be removed/reduced after testing
         
 

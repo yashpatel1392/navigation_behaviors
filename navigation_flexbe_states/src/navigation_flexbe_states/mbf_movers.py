@@ -26,7 +26,7 @@ class MBFMovers(EventState):
     <= failed                       indicates unsuccessful completion of navigation.
 
     """
-    
+
     def __init__(self, robot_names):
         # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
 
@@ -51,7 +51,7 @@ class MBFMovers(EventState):
         self._goal_pose_dict = dict.fromkeys(self._goal_pose_topics, PoseStamped)
         self._action_dict = dict.fromkeys(self._action_topics, ExePathAction)
         self._outcomes_list = dict.fromkeys(self._action_topics, False)
-    
+
         
         self._odom_sub = ProxySubscriberCached(self._odom_dict)
         self._goal_pose_subs = ProxySubscriberCached(self._goal_pose_dict)
@@ -60,11 +60,11 @@ class MBFMovers(EventState):
         self._clients = ProxyActionClient(self._action_dict)
         self._goal_poses = []
         
-    
+
     def execute(self, userdata):       
         # This method is called periodically while the state is active.
-		# Main purpose is to check state conditions and trigger a corresponding outcome.
-		# If no outcome is returned, the state will stay active.
+        # Main purpose is to check state conditions and trigger a corresponding outcome.
+        # If no outcome is returned, the state will stay active.
 
         for map_pose_topic, goal_pose_topic, action_topic, goal_pose_data in zip(self._map_pose_topics, self._goal_pose_topics, self._action_topics, self._goal_poses):
             if self._sub.has_msg(map_pose_topic):
@@ -102,10 +102,10 @@ class MBFMovers(EventState):
         if counter == len(self._action_topics):
             return 'success'
 
-    
+
     def on_enter(self, userdata):   
         # This method is called when the state becomes active, i.e. a transition from another state to this one is taken.
-  
+
         for action_topic in self._action_topics:
             path_goal = userdata.robot_paths_IN[action_topic]
             
@@ -126,7 +126,7 @@ class MBFMovers(EventState):
             self._clients.send_goal(action_topic, goal)
 
             time.sleep(5) # can be removed/reduced after testing
-    
+
 
     # This function cancels active goals for each of the robots.
     def cancel_active_goals(self):
@@ -136,7 +136,7 @@ class MBFMovers(EventState):
                     if not self._clients.has_result(action_topic):
                         self._clients.cancel(action_topic)
                         Logger.loginfo('Cancelled move_base_flex active action goal.')
-    
+
 
     def on_exit(self, userdata):
         # This method is called when an outcome is returned and another state gets active.
@@ -146,4 +146,3 @@ class MBFMovers(EventState):
     def on_stop(self):
         # This method is called whenever the behavior stops execution, also if it is cancelled.
         self.cancel_active_goals()
-    

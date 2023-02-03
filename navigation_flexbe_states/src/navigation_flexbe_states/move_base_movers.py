@@ -18,7 +18,7 @@ class MoveBaseMovers(EventState):
     for each of the robot as well. Goals are received as input keys.
 
     -- robot_names          string              list of robot names.
-    
+
     ># robot_goals_IN       PoseStamped[]       list of the goals for each of the robot.
 
     <= success                                  indicates successful completion of navigation.
@@ -30,7 +30,7 @@ class MoveBaseMovers(EventState):
         # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
 
         super(MoveBaseMovers, self).__init__(outcomes=['success', 'failed'],
-                                             input_keys=['robot_goals_IN'])
+                                                input_keys=['robot_goals_IN'])
         self._robot_names_list = robot_names.split(", ")
         self._goal_pose_topics = []
         self._odom_topics = []
@@ -56,7 +56,7 @@ class MoveBaseMovers(EventState):
 
         self._clients = ProxyActionClient(self._action_dict)
         
-    
+
     # Checker
     def check_positions_matched(self, map_pose_topic, goal_pose):       
         if self._sub.has_msg(map_pose_topic):
@@ -64,7 +64,7 @@ class MoveBaseMovers(EventState):
             self._sub.remove_last_msg(map_pose_topic)
         else:
             return False
-    
+
         orient = self._map_pose_data.pose.orientation
         (_, _, current_yaw) = euler_from_quaternion([orient.x,orient.y,orient.z,orient.w])        
         g_orient = goal_pose.pose.orientation
@@ -81,8 +81,8 @@ class MoveBaseMovers(EventState):
 
     def execute(self, userdata):
         # This method is called periodically while the state is active.
-		# Main purpose is to check state conditions and trigger a corresponding outcome.
-		# If no outcome is returned, the state will stay active.
+        # Main purpose is to check state conditions and trigger a corresponding outcome.
+        # If no outcome is returned, the state will stay active.
 
         for map_pose_topic, goal_pose, action_topic in zip(self._map_pose_topics, userdata.robot_goals_IN, self._action_topics):    
             if self.check_positions_matched(map_pose_topic, goal_pose):
@@ -101,7 +101,7 @@ class MoveBaseMovers(EventState):
 
     def on_enter(self, userdata):
         # This method is called when the state becomes active, i.e. a transition from another state to this one is taken.
-      
+        
         for i in range(len(self._action_topics)):
             goal_pose = userdata.robot_goals_IN[i]
             goal = MoveBaseGoal()

@@ -24,7 +24,7 @@ class TuwGoalPublisherStateMThread(EventState):
         # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
 
         super(TuwGoalPublisherStateMThread, self).__init__(outcomes=['success', 'failed'],
-                                                 output_keys=['robot_paths_OUT'])
+                                                    output_keys=['robot_paths_OUT'])
         self._robot_names_list = robot_names.split(", ")
         self._robot_paths = []
         self._robot_path_topics = []
@@ -39,9 +39,9 @@ class TuwGoalPublisherStateMThread(EventState):
 
     def execute(self, userdata):   
         # This method is called periodically while the state is active.
-		# Main purpose is to check state conditions and trigger a corresponding outcome.
-		# If no outcome is returned, the state will stay active.
-             
+        # Main purpose is to check state conditions and trigger a corresponding outcome.
+        # If no outcome is returned, the state will stay active.
+                
         for thread in self._threads_list:
             thread.join()
                 
@@ -54,7 +54,7 @@ class TuwGoalPublisherStateMThread(EventState):
         while True:
             if not printed: 
                 printed = True
-    
+
             if self._sub.has_msg(robot_name + "/path"):
                 path = self._sub.get_last_msg(robot_name + "/path")
                 self._robot_paths.append(path)
@@ -66,7 +66,7 @@ class TuwGoalPublisherStateMThread(EventState):
 
     def on_enter(self, userdata): 
         # This method is called when the state becomes active, i.e. a transition from another state to this one is taken.
-     
+        
         self._threads_list = []       
         for i in range(len(self._robot_names_list)):
             thread = threading.Thread(target=self.is_path_received, args=(self._robot_names_list[i],))

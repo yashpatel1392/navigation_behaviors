@@ -19,20 +19,20 @@ class CounterState(EventState):
     """
 
     def __init__(self, decrement):
- 		# Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
+        # Declare outcomes, input_keys, and output_keys by calling the super constructor with the corresponding arguments.
 
         super(CounterState, self).__init__(outcomes=['success', 'failed', 'end'],
-                                           input_keys=['num_reps'],
-                                           output_keys=['num_reps_remaining'])
+                                            input_keys=['num_reps'],
+                                            output_keys=['num_reps_remaining'])
         self._reps_remaining = 0
         self._last_rep = False
         self._dec = decrement
-    
+
 
     def execute(self, userdata):
         # This method is called periodically while the state is active.
-		# Main purpose is to check state conditions and trigger a corresponding outcome.
-		# If no outcome is returned, the state will stay active.
+        # Main purpose is to check state conditions and trigger a corresponding outcome.
+        # If no outcome is returned, the state will stay active.
 
         userdata.num_reps_remaining = self._reps_remaining
 
@@ -40,7 +40,7 @@ class CounterState(EventState):
             return 'success'
         else:
             return 'end'
-    
+
 
     def on_enter(self, userdata):
         # This method is called when the state becomes active, i.e. a transition from another state to this one is taken.

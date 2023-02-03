@@ -30,7 +30,7 @@ class TuwMBOA(EventState):
         self._robot_names_list = robot_names.split(", ")
         self._robot_goals_first_list = [float(i) for i in robot_goals.split(", ")]
         self._robot_goals_list = [self._robot_goals_first_list[i:i + 3] for i in
-                                  range(0, len(self._robot_goals_first_list), 3)]        
+                                    range(0, len(self._robot_goals_first_list), 3)]        
         self._robot_path_topics = []
         self._map_pose_topics = []
         self._action_topics = []
@@ -75,7 +75,7 @@ class TuwMBOA(EventState):
                 return True
         return False
 
-    
+
     def send_goal(self, action_topic, goal_pose):
         goal = MoveBaseGoal()
         goal.target_pose.header.frame_id = "map"
@@ -86,8 +86,8 @@ class TuwMBOA(EventState):
 
     def execute(self, userdata):
         # This method is called periodically while the state is active.
-		# Main purpose is to check state conditions and trigger a corresponding outcome.
-		# If no outcome is returned, the state will stay active.
+        # Main purpose is to check state conditions and trigger a corresponding outcome.
+        # If no outcome is returned, the state will stay active.
 
         # for some reason this method wasn't ran periodically, therefore, infinite loop is used.
         while True:        
@@ -131,7 +131,7 @@ class TuwMBOA(EventState):
                 self._sub.remove_last_msg(robot_name + "/path")
                 
                 checklist = [abs(new_goal_pose.pose.position.x - robot_goal[0]) < 0.5,
-                             abs(new_goal_pose.pose.position.y - robot_goal[1]) < 0.5]
+                                abs(new_goal_pose.pose.position.y - robot_goal[1]) < 0.5]
                 
                 self._enter_loop = True       
 
@@ -142,7 +142,7 @@ class TuwMBOA(EventState):
 
     def on_enter(self, userdata):
         # This method is called when the state becomes active, i.e. a transition from another state to this one is taken.
-      
+        
         self._threads_list = []      
         self._goals_dict = {} 
 

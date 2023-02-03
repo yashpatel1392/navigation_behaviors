@@ -43,8 +43,8 @@ class PhyMoveBaseState(EventState):
 
     def execute(self, userdata):
         # This method is called periodically while the state is active.
-		# Main purpose is to check state conditions and trigger a corresponding outcome.
-		# If no outcome is returned, the state will stay active.
+        # Main purpose is to check state conditions and trigger a corresponding outcome.
+        # If no outcome is returned, the state will stay active.
 
         if self._sub.has_msg(self._map_pose_topic):
             self._map_pose_data = self._sub.get_last_msg(self._map_pose_topic)
@@ -74,7 +74,7 @@ class PhyMoveBaseState(EventState):
 
     def on_enter(self, userdata):   
         # This method is called when the state becomes active, i.e. a transition from another state to this one is taken.
-                       
+                        
         self._goal_pose_data = userdata.goal[0]
         goal = MoveBaseGoal()
         goal.target_pose.header.frame_id = "map"

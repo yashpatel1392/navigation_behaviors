@@ -24,20 +24,20 @@ class PauseState(EventState):
         self._topic = topic
         self._sub = ProxySubscriberCached({self._topic: String})
         self._pub = ProxyPublisher({self._topic: String})
-    
+
 
     def execute(self, userdata):
         # This method is called periodically while the state is active.
-		# Main purpose is to check state conditions and trigger a corresponding outcome.
-		# If no outcome is returned, the state will stay active.
+        # Main purpose is to check state conditions and trigger a corresponding outcome.
+        # If no outcome is returned, the state will stay active.
 
         if self._topic:
             if self._sub.has_msg(self._topic):
                 self._data = self._sub.get_last_msg(self._topic)
                 if self._data.data == "continue":
                     return 'success'
-       
-    
+        
+
     def on_enter(self, userdata):
         # This method is called when the state becomes active, i.e. a transition from another state to this one is taken.
         pass # Nothing to do here

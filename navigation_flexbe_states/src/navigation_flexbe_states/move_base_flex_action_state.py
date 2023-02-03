@@ -16,7 +16,7 @@ class MoveBaseFlexActionState(EventState):
     This state can be used by a single robot to navigate to its goal using move base flex.
 
     -- robot_name   string      robot namespace.
-    
+
     <= success                  indicates successful completion of navigation.
     <= failed                   indicates unsuccessful completion of navigation.
 
@@ -37,8 +37,8 @@ class MoveBaseFlexActionState(EventState):
 
     def execute(self, userdata):
         # This method is called periodically while the state is active.
-		# Main purpose is to check state conditions and trigger a corresponding outcome.
-		# If no outcome is returned, the state will stay active.
+        # Main purpose is to check state conditions and trigger a corresponding outcome.
+        # If no outcome is returned, the state will stay active.
 
         # Checker 
         if self._sub.has_msg(self._map_pose_topic):
@@ -69,7 +69,7 @@ class MoveBaseFlexActionState(EventState):
         
             elif status in [GoalStatus.PREEMPTED, GoalStatus.REJECTED, GoalStatus.ABORTED]:
                 return 'failed'
-    
+
 
     def on_enter(self, userdata):      
         # This method is called when the state becomes active, i.e. a transition from another state to this one is taken.
